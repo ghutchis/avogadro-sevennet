@@ -1,0 +1,107 @@
+[project]
+name = "avogadro-sevennet"
+version = "0.1.0"
+description = "Energy models using SevenNet ML potentials"
+authors = [{name = "Geoff Hutchison", email = "geoff.hutchison@gmail.com"}]
+license = "BSD-3-Clause"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+# The "avogadro" wheel provides avogadro.energy, the binary protocol helper
+# this plugin builds on, so there is no copy of the protocol code to maintain
+# here. It brings numpy with it.
+dependencies = ["avogadro>=2.1.0", "ase>=3.23", "sevenn>=0.13.0"]
+
+# Avogadro runs a feature of this plugin as:
+#     pixi run avogadro-sevennet <identifier> --protocol binary-v1
+# The entry point name must begin with "avogadro-" for Avogadro to find it, and
+# by convention it is the plugin name itself.
+[project.scripts]
+avogadro-sevennet = "avogadro_sevennet:main"
+# Avogadro runs the "-setup" entry point once, after installing the plugin.
+avogadro-sevennet-setup = "avogadro_sevennet:setup"
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/avogadro_sevennet"]
+
+# .github/workflows/update-dependencies.yml checks PyPI daily for these
+# packages and opens a PR raising their ">=" floors and the version.
+[tool.update-dependencies]
+track = ["avogadro", "sevenn"]
+
+# --- Pixi ------------------------------------------------------------------
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "linux-64"]
+
+[tool.pixi.dependencies]
+python = ">=3.11,<3.14"
+
+# Installing the plugin itself as an editable dependency is what lets Avogadro
+# invoke the entry point with `pixi run`.
+[tool.pixi.pypi-dependencies]
+avogadro_sevennet = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+setup = "avogadro-sevennet-setup"
+
+# pytest lives in a separate environment so that it is not installed alongside
+# the plugin when Avogadro sets it up for a user. `pixi run test` finds the
+# task there automatically.
+[tool.pixi.feature.test.dependencies]
+pytest = "*"
+
+[tool.pixi.feature.test.tasks]
+test = "pytest"
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+test = { features = ["test"], solve-group = "default" }
+
+# --- Avogadro --------------------------------------------------------------
+
+[tool.avogadro]
+minimum-avogadro-version = "1.103"
+
+# Each feature is an entry in an array of tables, keyed by feature type. The
+# other supported types are electrostatic-models, file-formats, input-generators
+# and menu-commands.
+#
+# `protocol = "binary-v1"` selects the framed binary exchange implemented by
+# avogadro.energy. Omitting it selects the older line-based text protocol, which
+# cannot carry batches or Hessians.
+#
+# The support.* keys are promises Avogadro holds you to: it refuses to run the
+# model on a molecule outside them, so they must match what the code below
+# actually does.
+[[tool.avogadro.energy-models]]
+identifier = "SevenNet-Omni"
+model-name = "SevenNet-Omni"
+description = "Calculate SevenNet-Omni (PBE, MPtrj+sAlex task) energies and gradients for neutral closed-shell molecules and crystals"
+input-format = "cjson"
+protocol = "binary-v1"
+support.gradients = true
+support.elements = "1-118"
+support.unit-cell = true
+support.ions = false
+support.radicals = false
+support.batch = false
+support.hessians = false
+
+[[tool.avogadro.energy-models]]
+identifier = "SevenNet-MF-ompa"
+model-name = "SevenNet-MF-ompa"
+description = "Calculate SevenNet-MF-ompa (PBE, MPtrj+sAlex task) energies and gradients for neutral closed-shell molecules and crystals"
+input-format = "cjson"
+protocol = "binary-v1"
+support.gradients = true
+support.elements = "1-118"
+support.unit-cell = true
+support.ions = false
+support.radicals = false
+support.batch = false
+support.hessians = false

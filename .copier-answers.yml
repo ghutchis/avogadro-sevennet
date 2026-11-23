@@ -1,0 +1,31 @@
+# Written by copier so that `copier update` can pull in later template
+# improvements. Do not edit by hand; commit it alongside the project.
+_commit: v0.1.0
+_src_path: avogadro-energy-template
+author_email: geoff.hutchison@gmail.com
+author_name: Geoff Hutchison
+build_backend: hatchling
+conda_dependencies: ''
+description: Energy models using SevenNet ML potentials
+example_backend: ase
+github_user: ghutchis
+include_charges: false
+include_setup: true
+include_tests: true
+include_user_options: false
+license: BSD-3-Clause
+model_description: Calculate SevenNet-Omni energies and gradients
+model_identifier: SevenNet-Omni
+model_name: SevenNet-Omni
+platforms:
+- osx-arm64
+- linux-64
+plugin_name: avogadro-sevennet
+pypi_dependencies: sevenn>=0.13.0
+python_requires: '3.11'
+support_batch: false
+support_elements: 1-118
+support_hessians: false
+support_ions: false
+support_radicals: false
+support_unit_cell: true
