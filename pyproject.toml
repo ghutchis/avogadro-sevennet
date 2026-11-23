@@ -105,3 +105,17 @@ support.ions = false
 support.radicals = false
 support.batch = false
 support.hessians = false
+
+[[tool.avogadro.energy-models]]
+identifier = "SevenNet-Omni-OMol25"
+model-name = "SevenNet-Omni (OMol25)"
+description = "Calculate SevenNet-Omni (OMol25 wB97M-V task) energies and gradients for neutral closed-shell molecules (elements 1-83, no periodic systems)"
+input-format = "cjson"
+protocol = "binary-v1"
+support.gradients = true
+support.elements = "1-83"
+support.unit-cell = false
+support.ions = false
+support.radicals = false
+support.batch = false
+support.hessians = false

@@ -50,7 +50,7 @@ def main():
     os.dup2(2, 1)
 
     match args.feature:
-        case "SevenNet-Omni" | "SevenNet-MF-ompa":
+        case "SevenNet-Omni" | "SevenNet-MF-ompa" | "SevenNet-Omni-OMol25":
             from ._server import run
 
             run(args.feature, proto_out)

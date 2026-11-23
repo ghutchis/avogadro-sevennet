@@ -155,3 +155,13 @@ def test_energy_is_invariant_under_a_lattice_translation(copper):
     here, there = exchange(copper, [(coords, 0), (coords + lattice_a, 0)])
 
     assert here == pytest.approx(there)
+
+
+def test_omol25_entry_runs(water):
+    coords = coordinates(water)
+    ((energy, gradient),) = exchange(
+        water, [(coords, FLAG_REQUEST_ENERGY_AND_GRADIENT)],
+        identifier="SevenNet-Omni-OMol25",
+    )
+    assert np.isfinite(energy)
+    assert gradient.shape == coords.shape

@@ -29,6 +29,9 @@ _EV_TO_KJ_MOL = 96.4853321
 MODELS = {
     "SevenNet-Omni": ("7net-omni", "mpa"),
     "SevenNet-MF-ompa": ("7net-mf-ompa", "mpa"),
+    # omol25_low: wB97M-V molecular task (OMol25), the representative
+    # molecular task upstream lists. omol25_high is high-spin-only.
+    "SevenNet-Omni-OMol25": ("7net-omni", "omol25_low"),
 }
 
 

@@ -10,6 +10,7 @@ Energy and gradient models for Avogadro 2 using the
 | --- | --- | --- | --- | --- | --- |
 | SevenNet-Omni | `7net-omni` | `mpa` (PBE(+U), MPtrj + sAlex) | 1-118 | yes | neutral closed-shell only |
 | SevenNet-MF-ompa | `7net-mf-ompa` | `mpa` (PBE(+U), MPtrj + sAlex) | 1-118 | yes | neutral closed-shell only |
+| SevenNet-Omni (OMol25) | `7net-omni` | `omol25_low` (wB97M-V, OMol25) | 1-83 | no | neutral closed-shell only |
 
 Both are conservative (energy-derived forces) equivariant graph networks with a
 6 Å cutoff. They are multi-task / multi-fidelity: one set of weights carries
@@ -23,7 +24,16 @@ The models take no charge or spin input, so Avogadro only offers them for
 neutral, closed-shell systems. The `mpa` task is trained on bulk inorganic
 crystals, so treat isolated-molecule energies with care.
 
-Element coverage comes from the checkpoints' type maps (H through Og); it says
+SevenNet-Omni (OMol25) uses the same Omni checkpoint (no extra download) with
+the `omol25_low` task, the representative wB97M-V molecular task upstream lists.
+The sibling `omol25_high` task is for high-spin configurations only and is not
+exposed. OMol25 contains charged and open-shell systems, but the model has no
+charge or spin input, so it cannot tell them apart; only neutral closed-shell
+molecules are offered. It is molecular, so periodic systems are not offered.
+Its elements (1-83, matching OMol25's 83 elements) are those with nonzero
+per-element reference energies for that task in the checkpoint.
+
+Element coverage for the other two entries comes from the checkpoints' type maps (H through Og); it says
 nothing about how well each element is sampled in training.
 
 Energies are reported in kJ/mol, gradients in kJ/mol/Å. The device is CUDA when
