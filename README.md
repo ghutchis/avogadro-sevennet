@@ -36,6 +36,9 @@ per-element reference energies for that task in the checkpoint.
 Element coverage for the other two entries comes from the checkpoints' type maps (H through Og); it says
 nothing about how well each element is sampled in training.
 
+The models run in float64 (the upstream default is float32), so energy differences
+near a minimum are not lost to round-off.
+
 Energies are reported in kJ/mol, gradients in kJ/mol/Å. The device is CUDA when
 available, otherwise CPU.
 

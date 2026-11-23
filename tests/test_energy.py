@@ -73,7 +73,10 @@ def test_energy_is_translation_invariant(water):
     assert here == pytest.approx(there)
 
 
-def test_gradient_matches_finite_differences(water):
+@pytest.mark.parametrize(
+    "identifier", ["SevenNet-Omni", "SevenNet-MF-ompa", "SevenNet-Omni-OMol25"]
+)
+def test_gradient_matches_finite_differences(water, identifier):
     """The gradient is dE/dx, not the force. A sign error shows up here.
 
     Central differences of the energy are accurate to O(h^2), so a correct
@@ -91,7 +94,7 @@ def test_gradient_matches_finite_differences(water):
                 displaced[atom, axis] += sign * step
                 requests.append((displaced, 0))
 
-    results = exchange(water, requests)
+    results = exchange(water, requests, identifier=identifier)
     analytic = results[0]
     energies = results[1:]
 
@@ -100,7 +103,7 @@ def test_gradient_matches_finite_differences(water):
         plus, minus = energies[2 * index], energies[2 * index + 1]
         numerical.flat[index] = (plus - minus) / (2.0 * step)
 
-    assert analytic == pytest.approx(numerical, rel=2e-2, abs=0.5)
+    assert analytic == pytest.approx(numerical, rel=1e-3, abs=0.02)
 
 
 def test_stdout_starts_with_protocol_magic(water):

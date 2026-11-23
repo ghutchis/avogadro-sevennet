@@ -42,15 +42,59 @@ def _device():
     return "cuda" if torch.cuda.is_available() else "cpu"
 
 
+def _to_float64(calculator):
+    """Run the loaded SevenNet model in float64.
+
+    SevenNet is float32 by default. With absolute energies of thousands of eV
+    (the OMol25 task) float32 round-off is ~1e-2 kJ/mol, which breaks optimizer
+    line searches near a minimum. Cast the weights, and keep every floating
+    tensor the graph carries in float64: the input data and some intermediate
+    one-hot features are created as float32 inside the model.
+    """
+    import torch
+
+    model = calculator.model
+    model.double()
+
+    def promote(data):
+        for key, value in list(data.items()):
+            if (
+                torch.is_tensor(value)
+                and value.is_floating_point()
+                and value.dtype != torch.float64
+            ):
+                data[key] = value.double()
+
+    def after(module, inputs, output):
+        promote(output)
+
+    for module in model._modules.values():
+        module.register_forward_hook(after)
+
+    forward = model.forward
+
+    def forward64(data):
+        promote(data)
+        return forward(data)
+
+    model.forward = forward64
+    return calculator
+
+
 def make_calculator(identifier):
     """Build the SevenNetCalculator for one of the models above."""
+    import torch
+
     name, modal = MODELS[identifier]
 
     # stdout (fd 1) has already been redirected to stderr by main(), so the
     # download notice and library chatter cannot reach the protocol stream.
     from sevenn.calculator import SevenNetCalculator
 
-    return SevenNetCalculator(model=name, modal=modal, device=_device())
+    # Build in float64 so shifts, scales and e3nn constants are float64 too.
+    torch.set_default_dtype(torch.float64)
+    calculator = SevenNetCalculator(model=name, modal=modal, device=_device())
+    return _to_float64(calculator)
 
 
 def _prepare(identifier, mol_cjson):
